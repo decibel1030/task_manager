@@ -22,18 +22,11 @@ class UserState(StatesGroup):
     # todo add photo state
 
 
-global issues_count
-
-
 @dp.message_handler(commands=["start"])
 async def start_handler(message: types.Message):
     add_button = KeyboardButton("Создать")
-    global issues_count
     issues_count = get_count_for_kb(message.from_user.id)
-    if issues_count is not False and issues_count != 0:
-        show_button = KeyboardButton(f"Показать({issues_count})")
-    else:
-        show_button = KeyboardButton("Показать")
+    show_button = KeyboardButton("Показать")
 
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(add_button, show_button)
@@ -83,7 +76,7 @@ class Show(StatesGroup):
     show_all = State()
 
 
-@dp.message_handler(Command("get") or Text(equals=f"Показать({issues_count})"))
+@dp.message_handler(Command("get") or Text(equals="Показать"))
 async def show_init(message: types.Message):
     data = get_all_tasks_count(message.from_user.id)
     if data is not False:
@@ -102,11 +95,7 @@ async def show_init(message: types.Message):
 @dp.message_handler(Text(equals="Да"), state=Show.show_all)
 async def show_all(message: types.Message):
     add_button = KeyboardButton("Создать")
-    issues_count = get_count_for_kb(message.from_user.id)
-    if issues_count is not False and issues_count != 0:
-        show_button = KeyboardButton(f"Показать({issues_count})")
-    else:
-        show_button = KeyboardButton("Показать")
+    show_button = KeyboardButton("Показать")
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(add_button, show_button)
     await message.answer(get_all_task_list(message.from_user.id), parse_mode='html', reply_markup=kb)
