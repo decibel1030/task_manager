@@ -25,13 +25,13 @@ class UserState(StatesGroup):
 @dp.message_handler(commands=["start"])
 async def start_handler(message: types.Message):
     add_button = KeyboardButton("Создать")
-    issues_count = get_count_for_kb(message.from_user.id)
     show_button = KeyboardButton("Показать")
 
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(add_button, show_button)
     await message.answer("Привет! Чтобы запланировать какую либо задачу импользуй команду /add"
-                         " или введите строку 'Создать'", reply_markup=kb)
+                         " или введите строку 'Создать', Чтобы увидеть записи введите команду /get или "
+                         "введите строку 'Показать'", reply_markup=kb)
 
 
 @dp.message_handler(Text(equals="Создать") or Command('add'))
@@ -76,9 +76,10 @@ class Show(StatesGroup):
     show_all = State()
 
 
-@dp.message_handler(Command("get") or Text(equals="Показать"))
+@dp.message_handler(Text(equals="Показать") or Command('view'))
 async def show_init(message: types.Message):
     data = get_all_tasks_count(message.from_user.id)
+    print(1)
     if data is not False:
         ans_yes = KeyboardButton("Да")
         kb = ReplyKeyboardMarkup(resize_keyboard=True)
