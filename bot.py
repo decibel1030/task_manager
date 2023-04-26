@@ -22,23 +22,16 @@ class UserState(StatesGroup):
     # todo add photo state
 
 
-global issues_count
-
-
 @dp.message_handler(commands=["start"])
 async def start_handler(message: types.Message):
     add_button = KeyboardButton("Создать")
-    global issues_count
-    issues_count = get_count_for_kb(message.from_user.id)
-    if issues_count is not False and issues_count != 0:
-        show_button = KeyboardButton(f"Показать({issues_count})")
-    else:
-        show_button = KeyboardButton("Показать")
+    show_button = KeyboardButton("Показать")
 
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(add_button, show_button)
     await message.answer("Привет! Чтобы запланировать какую либо задачу импользуй команду /add"
-                         " или введите строку 'Создать'", reply_markup=kb)
+                         " или введите строку 'Создать', Чтобы увидеть записи введите команду /get или "
+                         "введите строку 'Показать'", reply_markup=kb)
 
 
 @dp.message_handler(Text(equals="Создать") or Command('add'))
@@ -83,9 +76,10 @@ class Show(StatesGroup):
     show_all = State()
 
 
-@dp.message_handler(Command("get") or Text(equals=f"Показать({issues_count})"))
+@dp.message_handler(Text(equals="Показать") or Command('view'))
 async def show_init(message: types.Message):
     data = get_all_tasks_count(message.from_user.id)
+    print(1)
     if data is not False:
         ans_yes = KeyboardButton("Да")
         kb = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -102,11 +96,7 @@ async def show_init(message: types.Message):
 @dp.message_handler(Text(equals="Да"), state=Show.show_all)
 async def show_all(message: types.Message):
     add_button = KeyboardButton("Создать")
-    issues_count = get_count_for_kb(message.from_user.id)
-    if issues_count is not False and issues_count != 0:
-        show_button = KeyboardButton(f"Показать({issues_count})")
-    else:
-        show_button = KeyboardButton("Показать")
+    show_button = KeyboardButton("Показать")
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(add_button, show_button)
     await message.answer(get_all_task_list(message.from_user.id), parse_mode='html', reply_markup=kb)
@@ -118,5 +108,3 @@ async def info(message: types.Message):
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
-
-
