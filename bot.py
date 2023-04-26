@@ -22,9 +22,13 @@ class UserState(StatesGroup):
     # todo add photo state
 
 
+global issues_count
+
+
 @dp.message_handler(commands=["start"])
 async def start_handler(message: types.Message):
     add_button = KeyboardButton("Создать")
+    global issues_count
     issues_count = get_count_for_kb(message.from_user.id)
     if issues_count is not False and issues_count != 0:
         show_button = KeyboardButton(f"Показать({issues_count})")
@@ -79,7 +83,7 @@ class Show(StatesGroup):
     show_all = State()
 
 
-@dp.message_handler(Command("get") or Text(equals="Показать"))
+@dp.message_handler(Command("get") or Text(equals=f"Показать({issues_count})"))
 async def show_init(message: types.Message):
     data = get_all_tasks_count(message.from_user.id)
     if data is not False:
